@@ -1,0 +1,33 @@
+digraph Tree {
+node [shape=box, style="filled, rounded", color="black", fontname=helvetica] ;
+edge [fontname=helvetica] ;
+0 [label="ps_car_13 <= 0.9437\nsamples = 595212\nvalue = [573518, 21694]\nclass = No", fillcolor="#e58139f5"] ;
+1 [label="ps_ind_17_bin <= 0.5\nsamples = 473424\nvalue = [458132, 15292]\nclass = No", fillcolor="#e58139f6"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="ps_ind_05_cat <= 1.5\nsamples = 420349\nvalue = [407650, 12699]\nclass = No", fillcolor="#e58139f7"] ;
+1 -> 2 ;
+3 [label="samples = 382341\nvalue = [371396, 10945]\nclass = No", fillcolor="#e58139f7"] ;
+2 -> 3 ;
+4 [label="samples = 38008\nvalue = [36254, 1754]\nclass = No", fillcolor="#e58139f3"] ;
+2 -> 4 ;
+5 [label="ps_ind_04_cat <= -0.5\nsamples = 53075\nvalue = [50482, 2593]\nclass = No", fillcolor="#e58139f2"] ;
+1 -> 5 ;
+6 [label="samples = 23\nvalue = [9, 14]\nclass = Yes", fillcolor="#399de55b"] ;
+5 -> 6 ;
+7 [label="samples = 53052\nvalue = [50473, 2579]\nclass = No", fillcolor="#e58139f2"] ;
+5 -> 7 ;
+8 [label="ps_ind_17_bin <= 0.5\nsamples = 121788\nvalue = [115386, 6402]\nclass = No", fillcolor="#e58139f1"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="ps_car_13 <= 1.3453\nsamples = 102794\nvalue = [97774, 5020]\nclass = No", fillcolor="#e58139f2"] ;
+8 -> 9 ;
+10 [label="samples = 87487\nvalue = [83497, 3990]\nclass = No", fillcolor="#e58139f3"] ;
+9 -> 10 ;
+11 [label="samples = 15307\nvalue = [14277, 1030]\nclass = No", fillcolor="#e58139ed"] ;
+9 -> 11 ;
+12 [label="ps_ind_05_cat <= 0.5\nsamples = 18994\nvalue = [17612, 1382]\nclass = No", fillcolor="#e58139eb"] ;
+8 -> 12 ;
+13 [label="samples = 16791\nvalue = [15657, 1134]\nclass = No", fillcolor="#e58139ed"] ;
+12 -> 13 ;
+14 [label="samples = 2203\nvalue = [1955, 248]\nclass = No", fillcolor="#e58139df"] ;
+12 -> 14 ;
+}
