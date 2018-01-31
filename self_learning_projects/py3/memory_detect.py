@@ -75,7 +75,7 @@ import time
 import psutil
 
 
-def mem_detect(pid)
+def mem_detect(pid):
     p = psutil.Process(pid)
     mem = psutil.virtual_memory()
     localtime = time.asctime(time.localtime(time.time()))
