@@ -81,8 +81,8 @@ def mem_detect(pid):
     localtime = time.asctime(time.localtime(time.time()))
     print(localtime)
     print('Total: %.2fGB\tFree: %.2fGB %.2f%%\tAvailable: %.2fGB %.2f%%\tMEM_USE: %.2fGB %.2f%%' % 
-           (mem.total/1048576, mem.free/1048576, mem.free/mem.total*100, mem.available/1048576, 
-            mem.available/mem.total*100, mem.used/1048576, mem.used/mem.total*100))
+           (mem.total/1024**3, mem.free/1024**3, mem.free/mem.total*100, mem.available/1024**3, 
+            mem.available/mem.total*100, mem.used/1024**3, mem.used/mem.total*100))
 
 def main():
     while True:
