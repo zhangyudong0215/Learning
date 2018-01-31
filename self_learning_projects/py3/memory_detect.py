@@ -47,26 +47,47 @@
 # DirectMap2M:    17606656 kB
 # DirectMap1G:    84934656 kB
 
+## os 监控内存
+# import time
+
+
+# def get_total_mem():
+#     with open('/proc/meminfo') as f:
+#         total = int(f.readline().split()[1])
+#         free = int(f.readline().split()[1])
+#         available = int(f.readline().split()[1])
+#         buffers = int(f.readline().split()[1])
+#         cache = int(f.readline().split()[1])
+#     mem_use = total - free - buffers - cache
+#     localtime = time.asctime( time.localtime(time.time()) )
+#     print(localtime)
+#     print('MEMORY Total: %.2fGB\tFree: %.2fGB %.1f%%\tAvailable: %.2fGB %.1f%%\tMEM_USE: %.2fGB %.1f%%' % 
+#            (total/1048576, free/1048576, free/total*100, available/1048576, available/total, mem_use/1048576, mem_use/total))
+
+# def main():
+#     while True:
+#         time.sleep(3)
+#         get_total_mem()
+
+## psutil 监控内存
+import os
 import time
+import psutil
 
 
-def get_total_mem():
-    with open('/proc/meminfo') as f:
-        total = int(f.readline().split()[1])
-        free = int(f.readline().split()[1])
-        available = int(f.readline().split()[1])
-        buffers = int(f.readline().split()[1])
-        cache = int(f.readline().split()[1])
-    mem_use = total - free - buffers - cache
-    localtime = time.asctime( time.localtime(time.time()) )
+def mem_detect(pid)
+    p = psutil.Process(pid)
+    mem = psutil.virtual_memory()
+    localtime = time.asctime(time.localtime(time.time()))
     print(localtime)
-    print('MEMORY Total: %.2fGB\tFree: %.2fGB %.1f%%\tAvailable: %.2fGB %.1f%%\tMEM_USE: %.2fGB %.1f%%' % 
-           (total/1048576, free/1048576, free/total*100, available/1048576, available/total, mem_use/1048576, mem_use/total))
+    print('Total: %.2fGB\tFree: %.2fGB %.2f%%\tAvailable: %.2fGB %.2f%%\tMEM_USE: %.2fGB %.2f%%' % 
+           (mem.total/1048576, mem.free/1048576, mem.free/mem.total*100, mem.available/1048576, 
+            mem.available/mem.total*100, mem.used/1048576, mem.used/mem.total*100))
 
 def main():
     while True:
-        time.sleep(3)
-        get_total_mem()
+        mem_detect(os.getpid())
+        time.sleep(5)
 
 if __name__ == '__main__':
     main()
