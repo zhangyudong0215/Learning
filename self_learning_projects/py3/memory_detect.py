@@ -88,8 +88,8 @@ def mem_detect(pid):
 
 def detect_main(**kargs):
     while True:
-        mem_detect(pid)
-        time.sleep(period)
+        mem_detect(kargs['pid'])
+        time.sleep(kargs['period'])
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=\
