@@ -73,6 +73,7 @@
 import os
 import time
 import psutil
+import argparse
 
 
 def mem_detect(pid):
@@ -85,10 +86,18 @@ def mem_detect(pid):
             mem.available/mem.total*100, mem.used/1024**3, mem.used/mem.total*100))
     print("进程名称: %s\t内存占用百分比: %.2f%%" %(p.name(), p.memory_percent()))
 
-def detect_main(pid=os.getpid(), period=30):
+def detect_main(**kargs):
     while True:
         mem_detect(pid)
         time.sleep(period)
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description=\
+            'detect the memory use of programme according to the pid')
+    parser.add_argument('-p', '--pid', dest='pid', nargs='?', 
+        default=os.getpid(), help='pid of the programme')
+    parser.add_argument('-t', '--time', dest='period', nargs='?', 
+        default=5, help='输出间隔时间')
+    args = parser.parse_args()
+    kargs = vars(args)
+    detect_main(**kargs)
