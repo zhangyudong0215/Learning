@@ -87,7 +87,7 @@ def mem_detect(pid):
     print("进程名称: %s\t内存占用百分比: %.2f%%" %(p.name(), p.memory_percent()))
 
 def detect_main(**kwargs):
-    while '/proc/%s/stat' %str(kwargs['pid']):
+    while os.path.isfile('/proc/%s/stat' %str(kwargs['pid'])):
         mem_detect(int(kwargs['pid']))
         time.sleep(int(kwargs['period']))
     print("--------the process is over--------")
