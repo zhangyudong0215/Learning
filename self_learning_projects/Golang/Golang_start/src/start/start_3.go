@@ -114,37 +114,89 @@
 //    fmt.Println(input)
 //}
 
-// channel 通道
-package main
+// // channel 通道
+// package main
 
-import (
-    "fmt"
-    "time"
-)
+// import (
+//     "fmt"
+//     "time"
+// )
 
-func fixed_shooting(msg_chan chan string) {
-    for {
-        msg_chan <- "fixed shooting"
-        fmt.Println("continue fixed shooting...")
-    }
-}
+// func fixed_shooting(msg_chan chan string) {
+//     for {
+//         msg_chan <- "fixed shooting"
+//         fmt.Println("continue fixed shooting...")
+//     }
+// }
 
-func count(msg_chan chan string) {
-    for {
-        msg := <-msg_chan
-        fmt.Println(msg)
-        time.Sleep(time.Second * 1)
-    }
-}
+// func count(msg_chan chan string) {
+//     for {
+//         msg := <-msg_chan
+//         fmt.Println(msg)
+//         time.Sleep(time.Second * 1)
+//     }
+// }
 
-func main() {
-    var c chan string
-    c = make(chan string)
+// func main() {
+//     var c chan string
+//     c = make(chan string)
 
-    go fixed_shooting(c)
-    go count(c)
+//     go fixed_shooting(c)
+//     go count(c)
 
-    var input string
-    fmt.Scanln(&input)
-    fmt.Println(input)
-}
+//     var input string
+//     fmt.Scanln(&input)
+//     fmt.Println(input)
+// }
+
+// package main
+
+// import (
+//     "fmt"
+//     "time"
+// )
+
+// func fixed_shooting(msg_chan chan string) {
+//     for {
+//         msg_chan <- "fixed shooting"
+//     }
+// }
+
+// func three_point_shooting(msg_chan chan string) {
+//     for {
+//         msg_chan <- "three point shooting"
+//     }
+// }
+
+// func count(msg_chan chan string) {
+//     for {
+//         msg := <-msg_chan
+//         fmt.Println(msg)
+//         time.Sleep(time.Second * 1)
+//     }
+// }
+
+// func main() {
+//     var c chan string
+//     c = make(chan string)
+
+//     go fixed_shooting(c)
+//     go three_point_shooting(c)
+//     go count(c)
+
+//     var input string
+//     fmt.Scanln(&input)
+//     fmt.Println(input)
+//     fmt.Println("----program is over----")
+// }  // 本例的结果是"fixed shooting" 和 "three points shooting"交叉输出，为什么？
+
+/* 
+channel 通道方向
+所谓通道方向就是写和读，如果有如下定义
+c chan<- string  // 只能想channel写入数据
+c <-chan string  // 只能从channel读取数据
+否则会导致编译错误
+c chan string  // 默认的定义方式，则既可以想channel写入数据，也可以从channel读取数据
+*/
+
+
