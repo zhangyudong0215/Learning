@@ -86,10 +86,11 @@ def mem_detect(pid):
             mem.available/mem.total*100, mem.used/1024**3, mem.used/mem.total*100))
     print("进程名称: %s\t内存占用百分比: %.2f%%" %(p.name(), p.memory_percent()))
 
-def detect_main(**kargs):
-    while True:
+def detect_main(**kwargs):
+    while '/proc/%s/stat' %str(kwargs['pid']):
         mem_detect(int(kargs['pid']))
         time.sleep(int(kargs['period']))
+    print("--------the process is over--------")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=\
@@ -99,5 +100,5 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--time', dest='period', nargs='?', 
         default=5, help='输出间隔时间')
     args = parser.parse_args()
-    kargs = vars(args)
-    detect_main(**kargs)
+    kwargs = vars(args)
+    detect_main(**kwargs)
