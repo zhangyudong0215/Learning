@@ -88,7 +88,7 @@ def mem_detect(pid):
 
 def detect_main(**kargs):
     while True:
-        mem_detect(kargs['pid'])
+        mem_detect(int(kargs['pid']))
         time.sleep(int(kargs['period']))
 
 if __name__ == '__main__':
