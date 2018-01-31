@@ -88,8 +88,8 @@ def mem_detect(pid):
 
 def detect_main(**kwargs):
     while '/proc/%s/stat' %str(kwargs['pid']):
-        mem_detect(int(kargs['pid']))
-        time.sleep(int(kargs['period']))
+        mem_detect(int(kwargsargs['pid']))
+        time.sleep(int(kwargs['period']))
     print("--------the process is over--------")
 
 if __name__ == '__main__':
