@@ -61,8 +61,11 @@
 #     mem_use = total - free - buffers - cache
 #     localtime = time.asctime( time.localtime(time.time()) )
 #     print(localtime)
-#     print('MEMORY Total: %.2fGB\tFree: %.2fGB %.1f%%\tAvailable: %.2fGB %.1f%%\tMEM_USE: %.2fGB %.1f%%' % 
-#            (total/1048576, free/1048576, free/total*100, available/1048576, available/total, mem_use/1048576, mem_use/total))
+#     print('MEMORY Total: %.2fGB\tFree: %.2fGB %.1f%%\t \
+#         Available: %.2fGB %.1f%%\tMEM_USE: %.2fGB %.1f%%' % 
+#            (total/1048576, free/1048576, free/total*100, 
+#             available/1048576, available/total, 
+#             mem_use/1048576, mem_use/total))
 
 # def main():
 #     while True:
