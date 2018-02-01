@@ -76,6 +76,30 @@ import psutil
 import argparse
 
 
+class MemDetect():
+    '''
+    output the information of memory usage
+    '''
+    def __init__(self, pid=os.getpid(), period=5):
+        self.pid = pid
+        self.period = period
+
+    def mem_detect(self):
+        p = psutil.Process(self.pid)
+        mem = psutil.virtual_memory()
+        localtime = time.asctime(time.localtime(time.time()))
+        print(localtime)
+        print('Total: %.2fGB\tFree: %.2fGB %.2f%%\tAvailable: %.2fGB %.2f%%\tMEM_USE: %.2fGB %.2f%%' % 
+               (mem.total/1024**3, mem.free/1024**3, mem.free/mem.total*100, mem.available/1024**3, 
+                mem.available/mem.total*100, mem.used/1024**3, mem.used/mem.total*100))
+        print("进程名称: %s\t内存占用百分比: %.2f%%" %(p.name(), p.memory_percent()))
+
+    def detect_main(self):
+        while os.path.isfile('/proc/%s/stat' %str(self.pid)):
+            mem_detect(int(self.pid))
+            time.sleep(int(self.period))
+        print("--------the process is over--------")
+
 def mem_detect(pid):
     p = psutil.Process(pid)
     mem = psutil.virtual_memory()
