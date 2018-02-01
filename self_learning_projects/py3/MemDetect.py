@@ -125,6 +125,7 @@ def detect_main(**kwargs):
         time.sleep(int(kwargs['period']))
     print("--------the process is over--------")
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=\
             'detect the memory use of programme according to the pid')
@@ -132,6 +133,11 @@ if __name__ == '__main__':
         default=os.getpid(), help='pid of the programme')
     parser.add_argument('-t', '--time', dest='period', nargs='?', 
         default=5, help='输出间隔时间')
+
     args = parser.parse_args()
+
+    # how to use
+    # $ python MemDetect.py (-p somepid) (-t timespan)
+
     kwargs = vars(args)
     detect_main(**kwargs)
