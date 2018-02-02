@@ -18,9 +18,8 @@ package main
 
 import (
     "fmt"
-    "log"
-    "os"
-    "path/filepath"
 )
 
-
+func main() {
+    fmt.Println("hello world")
+}
