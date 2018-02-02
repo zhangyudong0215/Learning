@@ -18,8 +18,39 @@ package main
 
 import (
     "fmt"
+    "log"
+    "os"
+    "path/filepath"
 )
 
+var bigDigits = [][]string{
+    {"  000  ", 
+     " 0   0 ", 
+     "0     0", 
+     "0     0", 
+     "0     0", 
+     " 0   0 ", 
+     "  000  "}, 
+     {" 1 ", "11 ", " 1 ", " 1 ", " 1 ", " 1 ", "111"}, 
+}
+
 func main() {
-    fmt.Println("hello world")
+    if len(os.Args) == 1 {
+        fmt.Printf("usage: %s <whole-number>\n", filepath.Base(os.Args[0]))
+        os.Exit(1)
+    }
+
+    stringOfDigits := os.Args[1]
+    for row := range bigDigits[0] {
+        line := ""
+        for column := range stringOfDigits {
+            digit := stringOfDigits[column] - '0'
+            if 0 <= digit && digit <= 9 {
+                line += bigDigits[digit][row] + " "
+            } else {
+                log.Fatal("invalid whole number")
+            }
+        }
+        fmt.Println(line)
+    }
 }
