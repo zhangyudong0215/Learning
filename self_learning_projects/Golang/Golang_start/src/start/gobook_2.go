@@ -145,6 +145,94 @@
 // 	fmt.Printf("NumberOfEntries=%d\nVersion=2\n", len(songs))
 // }
 
+// package main
+
+// import (
+// 	"bufio"
+// 	"fmt"
+// 	"io"
+// 	"log"
+// 	"os"
+// 	"path/filepath"
+// 	"strings"
+// )
+
+// func main() {
+// 	if len(os.Args) == 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
+// 		fmt.Printf("usage: %s file\n", filepath.Base(os.Args[0]))
+// 		os.Exit(1)
+// 	}
+// 	separators := []string{"\t", "*", "|", "•"}
+// 	linesRead, lines := readUpToNLines(os.Args[1], 5)
+// 	counts := createCounts(lines, separators, linesRead)
+// 	separator := guessSep(counts, separators, linesRead)
+// 	report(separator)
+// }
+
+// func readUpToNLines(filename string, maxLines int) (int, []string) {
+// 	var file *os.File
+// 	var err error
+// 	if file, err = os.Open(filename); err != nil {
+// 		log.Fatal("fialed to open the file:", err)
+// 	}
+// 	defer file.Close()
+// 	lines := make([]string, maxLines)
+// 	reader := bufio.NewReader(file)
+// 	i := 0
+// 	for ; i < maxLines; i++ {
+// 		line, err := reader.ReadString('\n')
+// 		if line != "" {
+// 			lines[i] = line
+// 		}
+// 		if err != nil {
+// 			if err == io.EOF {
+// 				break
+// 			}
+// 			log.Fatal("failed to finish reading the file: ", err)
+// 		}
+// 	}
+// 	return i, lines[:i]
+// }
+
+// func createCounts(lines, separators []string, linesRead int) [][]int {
+// 	counts := make([][]int, len(separators))
+// 	for sepIndex := range separators {
+// 		counts[sepIndex] = make([]int, linesRead)
+// 		for lineIndex, line := range lines {
+// 			counts[sepIndex][lineIndex] = strings.Count(line, separators[sepIndex])
+// 		}
+// 	}
+// 	return counts
+// }
+
+// func guessSep(counts [][]int, separators []string, linesRead int) string {
+// 	for sepIndex := range separators {
+// 		same := true
+// 		count := counts[sepIndex][0]
+// 		for lineIndex := 1; lineIndex < linesRead; lineIndex++ {
+// 			if counts[sepIndex][lineIndex] != count {
+// 				same = false
+// 				break
+// 			}
+// 		}
+// 		if count > 0 && same {
+// 			return separators[sepIndex]
+// 		}
+// 	}
+// 	return ""
+// }
+
+// func report(separator string) {
+// 	switch separator {
+// 	case "":
+// 		fmt.Println("whitespace-separated or not separated at all")
+// 	case "\t":
+// 		fmt.Println("tab-separated")
+// 	default:
+// 		fmt.Printf("%s-separated\n", separator)
+// 	}
+// }
+
 package main
 
 import (
@@ -154,81 +242,118 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
+	"sort"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 )
 
 func main() {
 	if len(os.Args) == 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
-		fmt.Printf("usage: %s file\n", filepath.Base(os.Args[0]))
+		fmt.Printf("usage: %s <file1> [<file2> [... <fileN>]]\n",
+			filepath.Base(os.Args[0]))
 		os.Exit(1)
 	}
-	separators := []string{"\t", "*", "|", "•"}
-	linesRead, lines := readUpToNLines(os.Args[1], 5)
-	counts := createCounts(lines, separators, linesRead)
-	separator := guessSep(counts, separators, linesRead)
-	report(separator)
+	frequencyForWord := map[string]int{}
+	for _, filename := range commandLineFiles(os.Args[1:]) {
+		updateFrequencies(filename, frequencyForWord)
+	}
+	reportByWords(frequencyForWord)
+	wordsForFrequency := invertStringIntMap(frequencyForWord)
+	reportByFrequency(wordsForFrequency)
 }
 
-func readUpToNLines(filename string, maxLines int) (int, []string) {
+func commandLineFiles(files []string) []string {
+	if runtime.GOOS == "windows" {
+		args := make([]string, 0, len(files))
+		for _, name := range files {
+			if matches, err := filepath.Glob(name); err != nil {
+				args = append(args, name)
+			} else if matches != nil {
+				args = append(args, matches...)
+			}
+		}
+		return args
+	}
+	return files
+}
+
+func updateFrequencies(filename string, frequencyForWord map[string]int) {
 	var file *os.File
 	var err error
 	if file, err = os.Open(filename); err != nil {
-		log.Fatal("fialed to open the file:", err)
+		log.Println("failed to open the file: ", err)
+		return
 	}
 	defer file.Close()
-	lines := make([]string, maxLines)
-	reader := bufio.NewReader(file)
-	i := 0
-	for ; i < maxLines; i++ {
+	readAndUpdateFrequencies(bufio.NewReader(file), frequencyForWord)
+}
+
+func readAndUpdateFrequencies(reader *bufio.Reader, frequencyForWord map[string]int) {
+	for {
 		line, err := reader.ReadString('\n')
-		if line != "" {
-			lines[i] = line
+		for _, word := range SplitOnNonLetters(strings.TrimSpace(line)) {
+			if len(word) > utf8.UTFMax || utf8.RuneCountInString(word) > 1 { // 至少两个字母的单词
+				frequencyForWord[strings.ToLower(word)] += 1
+			}
 		}
 		if err != nil {
-			if err == io.EOF {
-				break
+			if err != io.EOF {
+				log.Println("failed to finish reading the file: ", err)
 			}
-			log.Fatal("failed to finish reading the file: ", err)
+			break
 		}
 	}
-	return i, lines[:i]
 }
 
-func createCounts(lines, separators []string, linesRead int) [][]int {
-	counts := make([][]int, len(separators))
-	for sepIndex := range separators {
-		counts[sepIndex] = make([]int, linesRead)
-		for lineIndex, line := range lines {
-			counts[sepIndex][lineIndex] = strings.Count(line, separators[sepIndex])
+func SplitOnNonLetters(s string) []string {
+	notALetter := func(char rune) bool {
+		return !unicode.IsLetter(char)
+	}
+	return strings.FieldsFunc(s, notALetter)
+}
+
+func reportByWords(frequencyForWord map[string]int) {
+	words := make([]string, 0, len(frequencyForWord))
+	wordWidth, frequencyWidth := 0, 0
+	for word, frequency := range frequencyForWord {
+		words = append(words, word)
+		if width := utf8.RuneCountInString(word); width > wordWidth {
+			wordWidth = width
+		}
+		if width := len(fmt.Sprint(frequency)); width > frequencyWidth {
+			frequencyWidth = width
 		}
 	}
-	return counts
-}
-
-func guessSep(counts [][]int, separators []string, linesRead int) string {
-	for sepIndex := range separators {
-		same := true
-		count := counts[sepIndex][0]
-		for lineIndex := 1; lineIndex < linesRead; lineIndex++ {
-			if counts[sepIndex][lineIndex] != count {
-				same = false
-				break
-			}
-		}
-		if count > 0 && same {
-			return separators[sepIndex]
-		}
+	sort.Strings(words)
+	gap := wordWidth + frequencyWidth - len("Word") - len("Frequency")
+	fmt.Printf("word %*s%s\n", gap, " ", "Frequency")
+	for _, word := range words {
+		fmt.Printf("%-*s %*d\n", wordWidth, word, frequencyWidth,
+			frequencyForWord[word])
 	}
-	return ""
 }
 
-func report(separator string) {
-	switch separator {
-	case "":
-		fmt.Println("whitespace-separated or not separated at all")
-	case "\t":
-		fmt.Println("tab-separated")
-	default:
-		fmt.Printf("%s-separated\n", separator)
+func invertStringIntMap(intForString map[string]int) map[int][]string {
+	stringsForInt := make(map[int][]string, len(intForString))
+	for key, value := range intForString {
+		stringsForInt[value] = append(stringsForInt[value], key)
+	}
+	return stringsForInt
+}
+
+func reportByFrequency(wordsForFrequency map[int][]string) {
+	frequencies := make([]int, 0, len(wordsForFrequency))
+	for frequency := range wordsForFrequency {
+		frequencies = append(frequencies, frequency)
+	}
+	sort.Ints(frequencies)
+	width := len(fmt.Sprint(frequencies[len(frequencies)-1]))
+	fmt.Println("Frequency -> Words")
+	for _, frequency := range frequencies {
+		words := wordsForFrequency[frequency]
+		sort.Strings(words)
+		fmt.Printf("%*d %s\n", width, frequency, strings.Join(words, ", "))
 	}
 }
