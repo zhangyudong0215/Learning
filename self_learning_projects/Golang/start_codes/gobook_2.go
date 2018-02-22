@@ -358,70 +358,70 @@
 // 	}
 // }
 
-// chapter 4 exercises
-package main
+// // chapter 4 exercises
+// package main
 
-import (
-    "fmt"
-)
+// import (
+//     "fmt"
+// )
 
-func main() {
-    irregularMatrix := [][]int{{1, 2, 3, 4},
-        {5, 6, 7, 8},
-        {9, 10, 11},
-        {12, 13, 14, 15},
-        {16, 17, 18, 19, 20}}
-    fmt.Println("irregular:", irregularMatrix)
-    slice := Flatten(irregularMatrix)
-    fmt.Printf("1x%d: %v\n", len(slice), slice)
-    fmt.Printf(" 3x%v\n", Make2D(slice, 3))
-    fmt.Printf(" 4x%v\n", Make2D(slice, 4))
-    fmt.Printf(" 5x%v\n", Make2D(slice, 5))
-    fmt.Printf(" 6x%v\n", Make2D(slice, 6))
-    slice = []int{9, 1, 9, 5, 4, 4, 2, 1, 5, 4, 8, 8, 4, 3, 6, 9, 5, 7, 5}
-    fmt.Println("Original:", slice)
-    slice = UniqueInts(slice)
-    fmt.Println("Unique:  ", slice)
-}
+// func main() {
+//     irregularMatrix := [][]int{{1, 2, 3, 4},
+//         {5, 6, 7, 8},
+//         {9, 10, 11},
+//         {12, 13, 14, 15},
+//         {16, 17, 18, 19, 20}}
+//     fmt.Println("irregular:", irregularMatrix)
+//     slice := Flatten(irregularMatrix)
+//     fmt.Printf("1x%d: %v\n", len(slice), slice)
+//     fmt.Printf(" 3x%v\n", Make2D(slice, 3))
+//     fmt.Printf(" 4x%v\n", Make2D(slice, 4))
+//     fmt.Printf(" 5x%v\n", Make2D(slice, 5))
+//     fmt.Printf(" 6x%v\n", Make2D(slice, 6))
+//     slice = []int{9, 1, 9, 5, 4, 4, 2, 1, 5, 4, 8, 8, 4, 3, 6, 9, 5, 7, 5}
+//     fmt.Println("Original:", slice)
+//     slice = UniqueInts(slice)
+//     fmt.Println("Unique:  ", slice)
+// }
 
-//----1----
-func UniqueInts(slice []int) []int {
-    ans := []int{}
-    seen := map[int]bool{}
-    for _, num := range slice {
-        if _, found := seen[num]; !found {
-            seen[num] = true
-            ans = append(ans, num)
-        }
-    }
-    return ans
-}
+// //----1----
+// func UniqueInts(slice []int) []int {
+//     ans := []int{}
+//     seen := map[int]bool{}
+//     for _, num := range slice {
+//         if _, found := seen[num]; !found {
+//             seen[num] = true
+//             ans = append(ans, num)
+//         }
+//     }
+//     return ans
+// }
 
-//----2----
-func Flatten(slice2D [][]int) []int {
-    ans := []int{}
-    for _, slice := range slice2D {
-        for _, num := range slice {
-            ans = append(ans, num)
-        }
-    }
-    return ans
-}
+// //----2----
+// func Flatten(slice2D [][]int) []int {
+//     ans := []int{}
+//     for _, slice := range slice2D {
+//         for _, num := range slice {
+//             ans = append(ans, num)
+//         }
+//     }
+//     return ans
+// }
 
-//----3----
-func Make2D(slice []int, col int) [][]int {
-    ans := [][]int{}
-    row := len(slice) / col
-    if len(slice)%col != 0 {
-        row++
-    }
-    for i := 0; i < row; i++ {
-        ans = append(ans, make([]int, col))
-    }
-    for index, num := range slice {
-        r := index / col
-        c := index % col
-        ans[r][c] = num
-    }
-    return ans
-}
+// //----3----
+// func Make2D(slice []int, col int) [][]int {
+//     ans := [][]int{}
+//     row := len(slice) / col
+//     if len(slice)%col != 0 {
+//         row++
+//     }
+//     for i := 0; i < row; i++ {
+//         ans = append(ans, make([]int, col))
+//     }
+//     for index, num := range slice {
+//         r := index / col
+//         c := index % col
+//         ans[r][c] = num
+//     }
+//     return ans
+// }
