@@ -80,3 +80,5 @@ if __name__ == '__main__':
 
     kwargs = vars(args)
     main(**kwargs)
+
+# python E:/ZYD/Github/Learning/self_learning_projects/py3/spider/R18/177spider.py -u url -s E:/ZYD/spider
