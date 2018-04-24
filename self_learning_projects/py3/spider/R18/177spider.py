@@ -2,10 +2,8 @@
 
 from requests_html import HTMLSession
 import requests
-import time
 import regex as re
 import functools
-import requests
 import argparse
 import os
 
@@ -23,6 +21,7 @@ def get_info(url, responses, pattern):
             pages.append(res.group(1))
     return max(map(int, pages)), title
 
+
 def get_page_imgs(response):
     imgs = []
     content = response.html.find('div.entry-content', first=True)
@@ -34,22 +33,26 @@ def get_page_imgs(response):
             pass
     return imgs
 
+
 def merge(list1, list2):
     list1.extend(list2)
     return list1
 
+
 def save_image(img_url, order, save_path):
     img_response = requests.get(img_url)
-    with open(os.path.join(save_path, '%d.jpg' %order), 'ab') as f:
+    with open(os.path.join(save_path, '%d.jpg' % order), 'ab') as f:
         f.write(img_response.content)
+
 
 def download(imgs, save_path):
     for index, img_url in enumerate(imgs):
-        save_image(img_url, index+1, save_path)
+        save_image(img_url, index + 1, save_path)
+
 
 def main(**kwargs):
     url = kwargs['url']
-    pattern = re.compile(url + '/(\d+)')
+    pattern = re.compile(url + r'/(\d+)')
 
     responses = []
 
@@ -60,8 +63,8 @@ def main(**kwargs):
         save_path = os.path.join(save_path, title)
         os.mkdir(save_path)
 
-    for index in range(2, max_page+1):
-        responses.append(session.get(url+'/'+str(index)))
+    for index in range(2, max_page + 1):
+        responses.append(session.get(url + '/' + str(index)))
 
     imgs = functools.reduce(merge, map(get_page_imgs, responses))
 
@@ -69,12 +72,16 @@ def main(**kwargs):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=\
-            'download some R18 comics')
-    parser.add_argument('-u', '--url', dest='url', nargs='?', 
-        default='', help='fixed links')
-    parser.add_argument('-s', '--save_path', dest='save_path', nargs='?', 
-        default='E:/ZYD/spider/177test/', help='储存地址')
+    parser = argparse.ArgumentParser(description='download some R18 comics')
+    parser.add_argument(
+        '-u', '--url', dest='url', nargs='?', default='', help='fixed links')
+    parser.add_argument(
+        '-s',
+        '--save_path',
+        dest='save_path',
+        nargs='?',
+        default='E:/ZYD/spider/177test/',
+        help='储存地址')
 
     args = parser.parse_args()
 
