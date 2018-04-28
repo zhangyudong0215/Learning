@@ -12,8 +12,8 @@ class NovelScrapyItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     title = scrapy.Field()
-    latest_chapter = scrapy.Field()
-    auther = scrapy.Field()
+    author = scrapy.Field()
+    status = scrapy.Field()
     word_count = scrapy.Field()
     update_time = scrapy.Field()
-    status = scrapy.Field()
+    url = scrapy.Field()
