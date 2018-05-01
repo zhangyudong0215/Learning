@@ -5,3 +5,4 @@ Self-Learning projects
 ## Add a spider ----2018_4_21
 ## finish the first scrapy project ----2018_4_27
 ## start learning mysql ----2018_5_1
+成功导入scrapy抓取的[顶点小说](http://www.23us.so/)数据, 解决mysql中文乱码问题, 记录在CSDN博客中.
