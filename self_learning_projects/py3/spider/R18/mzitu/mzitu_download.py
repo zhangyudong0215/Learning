@@ -44,20 +44,20 @@ def download(pic_id, page_count, save_path):
         print('完成: %s/%s' %(index, page_count))
     print('图集 %s 抓取完成' %pic_id)
 
-def main_spider(title, pic_id, page_count, save_path):
+def main_spider(title, pic_id, page_count, clicks, save_path):
 #     save_path = kwargs['save_path']
     if os.path.isdir(save_path):
-        title = str(pic_id) + '_' + title
+        title = str(pic_id) + '_' + str(clicks) + '_' + title
         save_path = os.path.join(save_path, title)
         if not os.path.exists(save_path):
             os.mkdir(save_path)
             download(pic_id, page_count, save_path)
 
 
-query = "SELECT * FROM photo_album"
+query = "SELECT * FROM photo_album ORDER BY clicks DESC"
 data = pd.read_sql_query(query, conn)
 data = pd.DataFrame(data)
 
-for i in range(50):
-    title, pic_id, page_count = data.loc[i, ['title', 'pic_id', 'page_count']]
-    main_spider(title, pic_id, page_count, '/home/ydzhang/spider_download/')
+for i in range(len(data)):
+    title, pic_id, page_count, clicks = data.loc[i, ['title', 'pic_id', 'page_count', 'clicks']]
+    main_spider(title, pic_id, page_count, clicks, '/home/ydzhang/spider_download/')
