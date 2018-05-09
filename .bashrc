@@ -92,6 +92,8 @@ alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
 alias mysql='mysql -u root -p'
+alias pipinstall='pip install -i https://pypi.tuna.tsinghua.edu.cn/simple'
+alias workbench='mysql-workbench'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
