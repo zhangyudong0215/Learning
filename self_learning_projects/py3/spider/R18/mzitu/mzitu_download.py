@@ -54,7 +54,7 @@ def main_spider(title, pic_id, page_count, clicks, save_path):
             download(pic_id, page_count, save_path)
 
 
-query = "SELECT * FROM photo_album ORDER BY clicks DESC"
+query = "SELECT * FROM photo_album ORDER BY clicks DESC LIMIT 3254 OFFSET 1011"
 data = pd.read_sql_query(query, conn)
 data = pd.DataFrame(data)
 
