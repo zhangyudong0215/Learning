@@ -91,7 +91,7 @@ fi
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
-alias mysql='mysql -u root -p'
+alias mysql='mycli -u root -p 00genius00'
 alias pipinstall='pip install -i https://pypi.tuna.tsinghua.edu.cn/simple'
 alias workbench='mysql-workbench'
 

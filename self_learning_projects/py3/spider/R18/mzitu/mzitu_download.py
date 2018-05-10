@@ -28,7 +28,7 @@ def save_image(img_url, order, save_path):
     img_response = session.get(img_url, headers=headers)
     with open(os.path.join(save_path, '%d.jpg' %order), 'ab') as f:
         f.write(img_response.content)
-    sleep(1)
+    # sleep(1)
 
 def download(pic_id, page_count, save_path):
     print('开始抓取图集 %s' %pic_id)

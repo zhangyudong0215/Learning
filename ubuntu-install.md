@@ -44,9 +44,10 @@ sudo apt-get install mysql-server
 sudo apt-get install mysql-workbench-community
 ```
 
-## psensor, tmux, htop
-```
-sudo apt-get install psensor
-sudo apt-get install tmux
-sudo apt-get install htop
+## psensor, tmux, glances
+```python
+sudo apt-get install psensor # 温度监控
+sudo apt-get install tmux 
+pip install glances # 替代htop的系统监控
+pip install mycli # 带语法高亮、自动补全的 MySQL 命令行客户端工具
 ```
