@@ -3,6 +3,7 @@ from time import sleep
 import os
 import MySQLdb
 import pandas as pd
+from mylog import MyLog as mylog
 
 
 headers = {
@@ -10,8 +11,8 @@ headers = {
     'accept': 'text/html, application/xhtml+xml, application/xml; q=0.9, image/webp, */*; q=0.8', 
     'referer': 'http://www.mzitu.com'
 }
-
 session = HTMLSession()
+logger = mylog()
 
 conn = MySQLdb.connect(
     host='127.0.0.1', 
@@ -28,10 +29,16 @@ def save_image(img_url, order, save_path):
     img_response = session.get(img_url, headers=headers)
     with open(os.path.join(save_path, '%d.jpg' %order), 'ab') as f:
         f.write(img_response.content)
-    # sleep(1)
+    # sleep(0.3)
 
 def download(pic_id, page_count, save_path):
-    print('开始抓取图集 %s' %pic_id)
+    '''
+    www.mzitu.com
+    近期的写真集的图片链接有规律可循, 由此能够如下, 减少访问页面的一般的工作量。
+    但是在爬虫的过程中发现早期部分(pic_id小于25500左右)图集链接无规律, 调整代码没有难度但是无意义.
+    所以就到此为止吧.
+    '''
+    logger.info('开始抓取图集 %s' %pic_id)
     base_url = 'http://www.mzitu.com/' + str(pic_id) + '/'
     res = session.get(base_url)
     first_img_url = res.html.xpath('/html/body/div[2]/div[1]/div[3]/p/a/img/@src')[0] # 秀一波xpath
@@ -41,8 +48,8 @@ def download(pic_id, page_count, save_path):
         else:
             img_url = first_img_url.replace('01.jpg', '%d.jpg' %index)
         save_image(img_url, index, save_path)
-        print('完成: %s/%s' %(index, page_count))
-    print('图集 %s 抓取完成' %pic_id)
+        # logger.info('完成: %s/%s' %(index, page_count))
+    logger.info('图集 %s 抓取完成' %pic_id)
 
 def main_spider(title, pic_id, page_count, clicks, save_path):
 #     save_path = kwargs['save_path']
@@ -54,7 +61,15 @@ def main_spider(title, pic_id, page_count, clicks, save_path):
             download(pic_id, page_count, save_path)
 
 
-query = "SELECT * FROM photo_album ORDER BY clicks DESC LIMIT 3254 OFFSET 1011"
+# query = "SELECT * FROM photo_album ORDER BY clicks DESC LIMIT 2558 OFFSET 1707"
+query = '''
+SELECT *
+FROM mzitu.photo_album
+WHERE pic_id > 25500 AND clicks < 805000
+ORDER BY clicks DESC
+LIMIT 1500
+;
+'''
 data = pd.read_sql_query(query, conn)
 data = pd.DataFrame(data)
 
