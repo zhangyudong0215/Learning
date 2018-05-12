@@ -94,6 +94,7 @@ alias l='ls -CF'
 alias mysql='mycli -u root -p 00genius00'
 alias pipinstall='pip install -i https://pypi.tuna.tsinghua.edu.cn/simple'
 alias workbench='mysql-workbench'
+alias aliyun='ssh root@39.108.157.74'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert

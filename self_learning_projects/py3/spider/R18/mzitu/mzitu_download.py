@@ -4,6 +4,7 @@ import os
 import MySQLdb
 import pandas as pd
 from mylog import MyLog as mylog
+from tqdm import tqdm
 
 
 headers = {
@@ -42,7 +43,7 @@ def download(pic_id, page_count, save_path):
     base_url = 'http://www.mzitu.com/' + str(pic_id) + '/'
     res = session.get(base_url)
     first_img_url = res.html.xpath('/html/body/div[2]/div[1]/div[3]/p/a/img/@src')[0] # 秀一波xpath
-    for index in range(1, page_count+1):
+    for index in tqdm(range(1, page_count+1)):
         if index < 10:
             img_url = first_img_url.replace('1.jpg', '%d.jpg' %index)
         else:
@@ -65,9 +66,9 @@ def main_spider(title, pic_id, page_count, clicks, save_path):
 query = '''
 SELECT *
 FROM mzitu.photo_album
-WHERE pic_id > 25500 AND clicks < 805000
+WHERE pic_id > 25500
 ORDER BY clicks DESC
-LIMIT 1500
+LIMIT 4000
 ;
 '''
 data = pd.read_sql_query(query, conn)
