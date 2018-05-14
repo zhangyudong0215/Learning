@@ -1,3 +1,4 @@
+# coding: utf-8
 from requests_html import HTMLSession
 from time import sleep
 import os
@@ -50,6 +51,8 @@ def download(pic_id, page_count, save_path):
             img_url = first_img_url.replace('01.jpg', '%d.jpg' %index)
         save_image(img_url, index, save_path)
         # logger.info('完成: %s/%s' %(index, page_count))
+    cursor.execute('UPDATE photo_album SET crawled = 1 WHERE pic_id = %s' %pic_id) # 完成之后更新数据库
+    conn.commit()
     logger.info('图集 %s 抓取完成' %pic_id)
 
 def main_spider(title, pic_id, page_count, clicks, save_path):
@@ -66,9 +69,7 @@ def main_spider(title, pic_id, page_count, clicks, save_path):
 query = '''
 SELECT *
 FROM mzitu.photo_album
-WHERE pic_id > 25500
-ORDER BY clicks DESC
-LIMIT 4000
+WHERE crawled = 0
 ;
 '''
 data = pd.read_sql_query(query, conn)
