@@ -66,6 +66,7 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
+source ~/.bash_profile
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -98,7 +99,12 @@ alias mysql='mycli -u root -p 00genius00'
 alias pipinstall='pip install -i https://pypi.tuna.tsinghua.edu.cn/simple'
 alias workbench='mysql-workbench'
 alias aliyun='ssh root@39.108.157.74'
+alias hadoopstart='/usr/local/hadoop/hadoop-3.1.0/sbin/start-all.sh'
+alias hadoopstop='/usr/local/hadoop/hadoop-3.1.0/sbin/stop-all.sh'
 
 export LC_ALL=en_US.UTF-8  
 export LANG=en_US.UTF-8
 export DEFAULT_USER="username"
+export PATH="/home/ydzhang/anaconda3/bin:$PATH"
+
+eval $(thefuck --alias)

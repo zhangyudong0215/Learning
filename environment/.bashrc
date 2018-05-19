@@ -95,6 +95,8 @@ alias mysql='mycli -u root -p 00genius00'
 alias pipinstall='pip install -i https://pypi.tuna.tsinghua.edu.cn/simple'
 alias workbench='mysql-workbench'
 alias aliyun='ssh root@39.108.157.74'
+alias hadoopstart='/usr/local/hadoop/hadoop-3.1.0/sbin/start-all.sh'
+alias hadoopstop='/usr/local/hadoop/hadoop-3.1.0/sbin/stop-all.sh'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -122,3 +124,14 @@ fi
 
 # added by Anaconda3 installer
 export PATH="/home/ydzhang/anaconda3/bin:$PATH"
+
+# zsh command not found
+# export PATH="/bin:/usr/bin:/usr/local/bin:$PATH"
+
+# java
+export JAVA_HOME=/home/ydzhang/jdk-10.0.1
+export JRE_HOME=${JAVA_HOME}/jre
+export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+export PATH=.:${JAVA_HOME}/bin:$PATH
+
+eval $(thefuck --alias)
