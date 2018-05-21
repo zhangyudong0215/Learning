@@ -5,27 +5,24 @@ from tqdm import tqdm, tgrange, tnrange
 from bs4 import BeautifulSoup
 import pickle
 import time
+from mylog import MyLog as mylog
 
-
+logger = mylog()
 htmlsession = HTMLSession()
-
 headers = {
     'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0',
     'accept': 'text/html, application/xhtml+xml, application/xml; q=0.9, image/webp, */*; q=0.8', 
     'referer': 'http://t66y.com/index.php'
 }
-
 proxies = {
     'http': 'http://127.0.0.1:1080/',
     'https': 'http://127.0.0.1:1080/', 
 }
-
 base_url = 'http://t66y.com/thread0806.php?fid=20'
-
 pattern = 'http://t66y\.com/htm_data/20/\d+/\d+\.html'
 
-get_response = partial(htmlsession.get, proxies=proxies, headers=headers)
 
+get_response = partial(htmlsession.get, proxies=proxies, headers=headers)
 
 def get_page_count(res):
     page_count = res.html.find('a.w70', first=True).find('input', first=True).attrs['value'].split('/')[-1]
@@ -63,6 +60,8 @@ def get_details(novel_url):
     res = get_response(novel_url)
     title = res.html.find('input[class="input"]', first=True).attrs['value'].replace('Re:', '')
     page_count = get_page_count(res)
+
+    logger.info('正在抓取 id: {novel_id} title: <<{title}>>'.format(novel_id=novel_id, title=title))
     
     text = get_first_page_details(res)
     base = 'http://t66y.com/read.php?tid={novel_id}&fpage=0&toread=&page='.format(novel_id=novel_id)
@@ -70,6 +69,7 @@ def get_details(novel_url):
         page_url = base + str(i)
         res = get_response(page_url)
         text += get_page_details(res)
+    logger.info('完成抓取 id: {novel_id} title: <<{title}>>'.format(novel_id=novel_id, title=title))
     return title, text
 
 def save(title, text):
@@ -95,8 +95,12 @@ def main():
         novel_urls = pickle.load(f)
     
     for novel_url in tqdm(novel_urls):
-        title, text = get_details(novel_url)
-        save(title, text)
+        try:
+            title, text = get_details(novel_url)
+            save(title, text)
+        except:
+            logger.error(novel_url)
+            pass
 
 
 if __name__ == '__main__':
