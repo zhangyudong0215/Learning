@@ -103,4 +103,5 @@ ENV/
 *.csv
 *.xlsx
 *.jpg
+*.png
 self_learning_projects/Golang/Golang_start/src/start/debug
