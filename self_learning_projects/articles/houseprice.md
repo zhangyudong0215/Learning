@@ -361,9 +361,35 @@ train = all_data[: ntrain]
 test = all_data[ntrain: ]
 ```
 ## <div align = "center">Modelling</div>
-> &emsp;&emsp;
-> &emsp;&emsp;
-> &emsp;&emsp;
-> &emsp;&emsp;
+> &emsp;&emsp;首先我们要导入一些Kaggle常用的回归模型, 主要用到的是sklearn中现有的一些模块. 另外, 我参考kaggle上参赛者分享的代码, 还是用了微软开源的lightgbm模型和陈天奇教授提出的xgboost模型. 这两种模型在kaggle中运用的比较多, 而且往往能够取得比较好的效果. 
+
+> &emsp;&emsp;在训练模型的时候, 我们使用RMSE作为损失函数. 同时, 考虑到训练数据集中数据数量较少, 我们希望充分利用训练集中的数据, 而不是简单的在训练集中进行拆分. 简单来说, 我们要利用交叉验证的方法来替代留出法, 使用尽可能多的数据来训练模型. 这里我们使用了sklearn包中的KFold函数, 制定k值来进行k-折交叉验证. 为了方便多个模型的使用, 我们将交叉验证和计算RMSE打包成一个函数.
+ 
+> &emsp;&emsp;接下来是调用一些基础的模型.
++ LASSO Regression
+LASSO回归模型对异常敏感, 所以这里使用了RobustScal(), 作用是利用四分位数进行放缩, 解决异常点对于模型精度的影响. 
+
++ Elastic Net Regression
+同样对于异常点比较敏感, 所以才去和上面相同的处理.
+
++ Kernel Ridge Regression
+
++ Gradient Boosting Regression
+梯度提升树模型, 损失函数loss选择huber将会提高模型对于异常点的泛化能力.
+
++ XGBoost
+这个模型是梯度提升树衍生物, 在很多kaggle比赛中都有应用. 而且据说对于结果的提升效果相当好. 
+
++ LightGBM
+这个模型我不是很了解, 还需要进一步学习. 
+
+> &emsp;&emsp;检查上述模型经过调参之后的结果.
+
+## <div align = "center">Stacking models</div>
++ Simplest Stacking approach: Averaging base models
+
++ Less simple Stacking: Adding a Meta-model
+
++ Ensembling StackedRegressor, XGBoost and LightGBM
 > &emsp;&emsp;
 > &emsp;&emsp;
