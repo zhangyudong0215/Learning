@@ -168,6 +168,7 @@ print('all_data size is : {}'.format(all_data.shape))
 ```
 all_data size is : (2917, 79)
 ```
+
 > &emsp;&emsp;检查数据中的缺失值的情况.
 ```python
 all_data_na = (all_data.isnull().sum() / len(all_data)) * 100
@@ -176,9 +177,101 @@ missing_data = pd.DataFrame({'Missing Ratio': all_data_na})
 missing_data.head(20) # 查看缺失值最多的20列
 ```
 ![missing_data](./pictures/missing_data.png)
+
 > &emsp;&emsp;我们用图形来可视化以上结果.
-> &emsp;&emsp;
-> &emsp;&emsp;
+```python
+fig, ax = plt.subplots(figsize=(15, 12))
+plt.xticks(rotation='90')
+sns.barplot(x=all_data_na.index, y=all_data_na)
+plt.xlabel('Features', fontsize=15)
+plt.ylabel('Percent of missing values', fontsize=15)
+plt.title('Percent missing data by feature', fontsize=15)
+```
+![missing_data2](./pictures/missing_data2.png)
+
+> &emsp;&emsp;并且绘制热点图来观察不同特征之间的相关性.
+```python
+# correlation map to see how features are correlated with SalePrice
+corrmat = train.corr()
+plt.subplots(figsize=(12, 9))
+sns.heatmap(corrmat, vmax=0.9, square=True)
+```
+![correlation](./pictures/correlation.png)
+
+> &emsp;&emsp;接下来的就是处理缺失数据的操作了.
++ 首先是`PoolQC`, 这个特征存在大量的`NA`值, `python`认为这些是确实数据, 但是我们查看说明文档会发现, `PoolQC`的意思是住房是否带有游泳池, 如果没有, 那么就会显示`NA`. 显然大部分的住房是不会有游泳池的, 所以这个特征列99%以上的都是缺失值. 我们只需要将`NA`替换为另一个值, 同样表示住房不带有游泳池即可.
+```python
+all_data['PoolQC'] = all_data['PoolQC'].fillna('None')
+```
++ `MiscFeature`性质和`PoolQC`相同, 说明文档显示`NA`代表没有一个叫做`misc feature`的东西, 我也不懂是啥, 只不过需要进行的操作和之前相同, 都是替换为`None`.
+```python
+all_data['MiscFeature'] = all_data['MiscFeature'].fillna('None')
+```
++ `Alley`, 代表有没有一条小路? `NA`的意思同样是没有, 所以替换为`None`.
+```python
+all_data['Alley'] = all_data['Alley'].fillna('None')
+```
++ `Fence`和`FireplaceQu`同上, 补全缺失值为`None`即可.
+```python
+all_data['Fence'] = all_data['Fence'].fillna('None')
+all_data['FireplaceQu'] = all_data['FireplaceQu'].fillna('None')
+```
++ `LotFrontage`描述的是住房门口街道的宽度. 考虑到同一个地区街道宽度大致是相同的, 那么我们就可以用邻近地区的数据来填充. 这里我们使用的是中位数.
+```python
+# Group by neighborhood and fill in missing values by the median lotFrontage 
+# of all the neighborhood
+all_data['LotFrontage'] = all_data.groupby('Neighborhood')['LotFrontage'].transform(
+    lambda x: x.fillna(x.median()))
+```
++ `GarageType`, `GarageFinish`, `GarageQual`和`GarageCond`描述的是`Garage`车库相关的特征, 如果存在缺失值一般就说明这个住房不带有车库, 所以缺失值填充`None`即可.
+```python
+for col in ['GarageType', 'GarageFinish', 'GarageQual', 'GarageCond']:
+    all_data[col] = all_data[col].fillna('None')
+```
++ `GarageYrBlt`, `GarageArea`和`GarageCars`同样是用来描述车库相关的特征. 但是和之前四个不同的是, 这三个特征是数值型的变量, 我们不能用`None`字符串去填充缺失值, 而是应该填充`0`来代表不存在.
+```python
+for col in ['GarageYrBlt', 'GarageArea', 'GarageCars']:
+    all_data[col] = all_data[col].fillna(0)
+```
++ `BsmtQual`, `BsmtCond`, `BsmtExposure`, `BsmtFinType1`, `BsmtFinTyep2`这几个特征是描述地下室相关信息的. 由于都是分类变量, 我们用`None`去填充缺失值.
+```python
+for col in ['BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1' ,'BsmtFinType2']:
+    all_data[col] = all_data[col].fillna('None')
+```
++ `BsmtFinSF1`, `BsmtFinSF2`, `BsmtUnfSF`, `TotalBsmtSF`, `BsmtFullBath`, `BsmtHalfBath`特征就是描述地下室的数值型变量, 我们用`0`去填充缺失值.
+```python
+for col in ['BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath']:
+    all_data[col] = all_data[col].fillna(0)
+```
++ `MasVnrArea`和`MasVnrType`描述的大概是瓷砖之类的属性. 分别填充`0`和`None`.
+```python
+all_data['MasVnrType'] = all_data['MasVnrType'].fillna('None')
+all_data['MasVnrArea'] = all_data['MasVnrArea'].fillna(0)
+```
++ `MSZoning`描述的是区域属性. 其中`RL`占绝对多数, 所以我们将缺失值填充为`RL`.
+```python
+all_data['MSZoning'] = all_data['MSZoning'].fillna(all_data['MSZoning'].mode()[0])
+```
++ `Utilities`, 这个特征几乎都是`AllPub`, 只有一个例外和两个`NA`, 因此我们认为这个对于最后预测的结果帮助不大, 所以直接去除.
+```python
+all_data = all_data.drop(['Utilities'], axis=1)
+```
++ `Functional`, 数据说明文件中说`NA`就是`typical`的意思.
+```python
+all_data['Functional'] = all_data['Functional'].fillna('Typ')
+```
++ `Electrical`描述住宅是否优点, 只有一个缺失值`NA`, 其他都是`SBrkr`, 所以就填充这个值.
+```python
+all_data['Electrical'] = all_data['Electrical'].fillna(all_data['Electrical'].mode()[0])
+```
++ `SaleType`, `KitchenQual`, `Exterior1st`和`Exterior2nd`这四个特征和`Electrical`相同, 几乎没有缺失值, 因此我们都利用频繁项填充.
+```python
+all_data['SaleType'] = all_data['SaleType'].fillna(all_data['SaleType'].mode()[0])
+all_data['KitchenQual'] = all_data['KitchenQual'].fillna(all_data['KitchenQual'].mode()[0])
+all_data['Exterior1st'] = all_data['Exterior1st'].fillna(all_data['Exterior1st'].mode()[0])
+all_data['Exterior2nd'] = all_data['Exterior2nd'].fillna(all_data['Exterior2nd'].mode()[0])
+```
++ `MSSubClass`
 > &emsp;&emsp;
 > &emsp;&emsp;
 > &emsp;&emsp;
