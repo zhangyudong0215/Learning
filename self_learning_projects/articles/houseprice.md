@@ -271,14 +271,96 @@ all_data['KitchenQual'] = all_data['KitchenQual'].fillna(all_data['KitchenQual']
 all_data['Exterior1st'] = all_data['Exterior1st'].fillna(all_data['Exterior1st'].mode()[0])
 all_data['Exterior2nd'] = all_data['Exterior2nd'].fillna(all_data['Exterior2nd'].mode()[0])
 ```
-+ `MSSubClass`
-> &emsp;&emsp;
-> &emsp;&emsp;
-> &emsp;&emsp;
-> &emsp;&emsp;
-> &emsp;&emsp;
-> &emsp;&emsp;
-> &emsp;&emsp;
++ `MSSubClass` 缺失值最有可能意味着不存在, 所以用`None`填充.
+```python
+all_data['MSSubClass'] = all_data['MSSubClass'].fillna("None")
+```
+
+> &emsp;&emsp;以上是缺失值处理步骤, 最后检查一下是否仍然存在缺失值.
+```python
+# check remaining missing values if any
+all_data_na = (all_data.isnull().sum() / len(all_data)) * 100
+all_data_na = all_data_na.drop(all_data_na[all_data_na == 0].index)
+    .sort_values(ascending=False)
+missing_data = pd.DataFrame({'Missing Ratio': all_data_na})
+missing_data.head()
+```
+![missing_data](./pictures/missing_data3.png)
+
+> &emsp;&emsp;接下来是一些特征工程的任务.
+```python
+# MSSubClass = The building class
+all_data['MSSubClass'] = all_data['MSSubClass'].apply(str)
+
+# Change OverallCond into a categorical variable
+all_data['OverallCond'] = all_data['OverallCond'].astype(str)
+
+# Year and month sold are transformed into categorical features
+all_data['YrSold'] = all_data['YrSold'].astype(str)
+all_data['MoSold'] = all_data['MoSold'].astype(str)
+```
+
+> &emsp;&emsp;将部分分类变量进行序号标记.
+```python
+from sklearn.preprocessing import LabelEncoder
+cols = ('FireplaceQu', 'BsmtQual', 'BsmtCond', 'GarageQual', 'GarageCond', 
+        'ExterQual', 'ExterCond','HeatingQC', 'PoolQC', 'KitchenQual', 'BsmtFinType1', 
+        'BsmtFinType2', 'Functional', 'Fence', 'BsmtExposure', 'GarageFinish', 'LandSlope',
+        'LotShape', 'PavedDrive', 'Street', 'Alley', 'CentralAir', 'MSSubClass', 'OverallCond', 
+        'YrSold', 'MoSold')
+
+# process columns, apply LabelEncoder to categorical features
+for col in cols:
+    lbl = LabelEncoder() 
+    lbl.fit(list(all_data[col].values)) 
+    all_data[col] = lbl.transform(list(all_data[col].values))
+
+# shape        
+print('Shape all_data: {}'.format(all_data.shape))
+```
+```
+Shape all_data: (2917, 78)
+```
+
+> &emsp;&emsp;考虑到面积相关的特征对于放假具有很重要的影响, 所以我们新建一个变量, 为地下室, 一层, 二层面积的综合.
+```python
+all_data['TotalSF'] = all_data['TotalBsmtSF'] + all_data['1stFlrSF'] + all_data['2ndFlrSF']
+```
+
+> &emsp;&emsp;接下来的步骤是检查数值型变量的偏度, 想之前的`SalePrice`一样, 我们也希望数值型变量都满足正态分布, 如果不满足, 那么我们应该通过某些变换, 使得数值型数据的分部具有良好的性质.
+```python
+numeric_feats = all_data.dtypes[all_data.dtypes != 'object'].index
+# Check the skew of all numerical features
+skewed_feats = all_data[numeric_feats].apply(lambda x: skew(x.dropna())).sort_values(ascending=False)
+skewness = pd.DataFrame({'Skew': skewed_feats})
+skewness.head()
+```
+![skewness](./pictures/skewness.png)
+
+> &emsp;&emsp;注意到还是有相当一部分数值型变量具有较大的偏度, 所以我们对于偏度较大的特征进行Box-Cox变换.
+```python
+skewness = skewness[abs(skewness) > 0.75]
+print('There are {} skewed numerical features to Box Cox transform'
+    .format(skewness.shape[0]))
+
+from scipy.special import boxcox1p
+skewed_features = skewness.index
+lam = 0.15
+for feat in skewed_features:
+    all_data[feat] = boxcox1p(all_data[feat], lam)
+```
+```
+There are 59 skewed numerical features to Box Cox transform
+```
+
+> &emsp;&emsp;将特征转变为虚拟变量, 重新划分训练集和测试集, 准备开始建模.
+```python
+all_data = pd.get_dummies(all_data)
+print(all_data.shape)
+train = all_data[: ntrain]
+test = all_data[ntrain: ]
+```
+## <div align = "center">Modelling</div>
 > &emsp;&emsp;
 > &emsp;&emsp;
 > &emsp;&emsp;
