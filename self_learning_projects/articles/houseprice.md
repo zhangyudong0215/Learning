@@ -114,7 +114,8 @@ sns.distplot(train['SalePrice'], fit=norm)
 print('\n mu = {: .2f} and sigma = {: .2f}\n'.format(mu, sigma))
 
 # now plot the distribution
-plt.legend(['Normal dist. ($\mu=$ {: .2f} and $\sigma=$ {: .2f} )'.format(mu, sigma)], loc='best')
+plt.legend(['Normal dist. ($\mu=$ {: .2f} and $\sigma=$ {: .2f} )'
+    .format(mu, sigma)], loc='best')
 plt.ylabel('Frequency')
 plt.title('SalePrice distribution')
 
@@ -141,7 +142,8 @@ sns.distplot(train['SalePrice'], fit=norm)
 print('\n mu = {: .2f} and sigma = {: .2f}\n'.format(mu, sigma))
 
 # now plot the distribution
-plt.legend(['Normal dist. ($\mu=$ {: .2f} and $\sigma=$ {: .2f})'.format(mu, sigma)], loc='best')
+plt.legend(['Normal dist. ($\mu=$ {: .2f} and $\sigma=$ {: .2f})'
+    .format(mu, sigma)], loc='best')
 plt.ylabel('Frequency')
 plt.title('SalePrice distribution')
 
@@ -172,7 +174,8 @@ all_data size is : (2917, 79)
 > &emsp;&emsp;检查数据中的缺失值的情况.
 ```python
 all_data_na = (all_data.isnull().sum() / len(all_data)) * 100
-all_data_na = all_data_na.drop(all_data_na[all_data_na == 0].index).sort_values(ascending=False)[:30]
+all_data_na = all_data_na.drop(all_data_na[all_data_na == 0].index)
+    .sort_values(ascending=False)[:30]
 missing_data = pd.DataFrame({'Missing Ratio': all_data_na})
 missing_data.head(20) # 查看缺失值最多的20列
 ```
@@ -240,7 +243,8 @@ for col in ['BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1' ,'BsmtFinType
 ```
 + `BsmtFinSF1`, `BsmtFinSF2`, `BsmtUnfSF`, `TotalBsmtSF`, `BsmtFullBath`, `BsmtHalfBath`特征就是描述地下室的数值型变量, 我们用`0`去填充缺失值.
 ```python
-for col in ['BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath']:
+for col in ['BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF', 'TotalBsmtSF', 
+    'BsmtFullBath', 'BsmtHalfBath']:
     all_data[col] = all_data[col].fillna(0)
 ```
 + `MasVnrArea`和`MasVnrType`描述的大概是瓷砖之类的属性. 分别填充`0`和`None`.
@@ -303,11 +307,14 @@ all_data['MoSold'] = all_data['MoSold'].astype(str)
 > &emsp;&emsp;将部分分类变量进行序号标记.
 ```python
 from sklearn.preprocessing import LabelEncoder
-cols = ('FireplaceQu', 'BsmtQual', 'BsmtCond', 'GarageQual', 'GarageCond', 
-        'ExterQual', 'ExterCond','HeatingQC', 'PoolQC', 'KitchenQual', 'BsmtFinType1', 
-        'BsmtFinType2', 'Functional', 'Fence', 'BsmtExposure', 'GarageFinish', 'LandSlope',
-        'LotShape', 'PavedDrive', 'Street', 'Alley', 'CentralAir', 'MSSubClass', 'OverallCond', 
-        'YrSold', 'MoSold')
+cols = (
+    'FireplaceQu', 'BsmtQual', 'BsmtCond', 'GarageQual', 'GarageCond', 
+    'ExterQual', 'ExterCond','HeatingQC', 'PoolQC', 'KitchenQual', 
+    'BsmtFinType1', 'BsmtFinType2', 'Functional', 'Fence', 'BsmtExposure', 
+    'GarageFinish', 'LandSlope', 'LotShape', 'PavedDrive', 'Street', 'Alley', 
+    'CentralAir', 'MSSubClass', 'OverallCond', 
+    'YrSold', 'MoSold'
+)
 
 # process columns, apply LabelEncoder to categorical features
 for col in cols:
@@ -331,7 +338,8 @@ all_data['TotalSF'] = all_data['TotalBsmtSF'] + all_data['1stFlrSF'] + all_data[
 ```python
 numeric_feats = all_data.dtypes[all_data.dtypes != 'object'].index
 # Check the skew of all numerical features
-skewed_feats = all_data[numeric_feats].apply(lambda x: skew(x.dropna())).sort_values(ascending=False)
+skewed_feats = all_data[numeric_feats]
+    .apply(lambda x: skew(x.dropna())).sort_values(ascending=False)
 skewness = pd.DataFrame({'Skew': skewed_feats})
 skewness.head()
 ```
@@ -593,10 +601,7 @@ print(rmse(y_train, lgb_train_pred))
 0.0710388626653
 ```
 > &emsp;&emsp;参考`Serigne`分享的代码, 对这几个模型计算加权平均.
-```python
-print('RMSE score on train data:', rmse(y_train, stacked_train_pred*0.7 + xgb_train_pred*0.15 + lgb_train_pred*0.15))
-```
-**
+
 **<div align = "center">最后得到的集成模型为:`ensemble = stacked_pred*0.7 + xgb_pred*0.15 + lgb_pred*0.15`</div>**
 
 至此, 这篇实战报告全部结束! 谢谢!
