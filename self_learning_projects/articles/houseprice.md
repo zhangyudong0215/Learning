@@ -362,34 +362,241 @@ test = all_data[ntrain: ]
 ```
 ## <div align = "center">Modelling</div>
 > &emsp;&emsp;首先我们要导入一些Kaggle常用的回归模型, 主要用到的是sklearn中现有的一些模块. 另外, 我参考kaggle上参赛者分享的代码, 还是用了微软开源的lightgbm模型和陈天奇教授提出的xgboost模型. 这两种模型在kaggle中运用的比较多, 而且往往能够取得比较好的效果. 
-
+```python
+from sklearn.linear_model import ElasticNet, Lasso, BayesianRidge, LassoLarsIC
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.kernel_ridge import KernelRidge
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import RobustScaler
+from sklearn.base import BaseEstimator, TransformerMixin, RegressorMixin, clone
+from sklearn.model_selection import KFold, cross_val_score, train_test_split
+from sklearn.metrics import mean_squared_error
+import xgboost as xgb
+import lightgbm as lgb
+```
 > &emsp;&emsp;在训练模型的时候, 我们使用RMSE作为损失函数. 同时, 考虑到训练数据集中数据数量较少, 我们希望充分利用训练集中的数据, 而不是简单的在训练集中进行拆分. 简单来说, 我们要利用交叉验证的方法来替代留出法, 使用尽可能多的数据来训练模型. 这里我们使用了sklearn包中的KFold函数, 制定k值来进行k-折交叉验证. 为了方便多个模型的使用, 我们将交叉验证和计算RMSE打包成一个函数.
- 
+```python
+# Validation function
+n_folds = 5
+
+def rmse_cv(model):
+    kf = KFold(n_folds, shuffle=True, random_state=42).get_n_splits(train.values)
+    rmse = np.sqrt(
+        -cross_val_score(
+            model, train.values, y_train, scoring='neg_mean_squared_error', cv=kf
+        )
+    )
+    return(rmse)
+```
 > &emsp;&emsp;接下来是调用一些基础的模型.
-+ LASSO Regression
+### <div align = "center">Base models</div>
++ **LASSO Regression**
 LASSO回归模型对异常敏感, 所以这里使用了RobustScal(), 作用是利用四分位数进行放缩, 解决异常点对于模型精度的影响. 
-
-+ Elastic Net Regression
+```python
+lasso = make_pipeline(RobustScaler(), Lasso(alpha=0.0005, random_state=1))
+```
++ **Elastic Net Regression**
 同样对于异常点比较敏感, 所以才去和上面相同的处理.
-
-+ Kernel Ridge Regression
-
-+ Gradient Boosting Regression
+```python
+ENet = make_pipeline(RobustScaler(), ElasticNet(alpha=0.0005, l1_ratio=0.9, random_state=3))
+```
++ **Kernel Ridge Regression**
+```python
+KRR = KernelRidge(alpha=0.6, kernel='polynomial', degree=2, coef0=2.5)
+```
++ **Gradient Boosting Regression**
 梯度提升树模型, 损失函数loss选择huber将会提高模型对于异常点的泛化能力.
-
-+ XGBoost
+```python
+GBoost = GradientBoostingRegressor(
+    n_estimators=3000, 
+    learning_rate=0.05, 
+    max_depth=4, 
+    max_features='sqrt', 
+    min_samples_leaf=15, 
+    min_samples_split=10, 
+    loss='huber', 
+    random_state=5
+)
+```
++ **XGBoost**
 这个模型是梯度提升树衍生物, 在很多kaggle比赛中都有应用. 而且据说对于结果的提升效果相当好. 
+```python
+model_xgb = xgb.XGBRegressor(
+    colsample_bytree=0.4603, 
+    gamma=0.0468, 
+    learning_rate=0.05, 
+    max_depth=3, 
+    min_child_weight=1.7817, 
+    n_estimators=2200, 
+    reg_alpha=0.4640, 
+    reg_lambda=0.8571, 
+    subsample=0.5213, 
+    silent=1, 
+    random_state=7, 
+    nthread=-1
+)
+```
 
-+ LightGBM
++ **LightGBM**
 这个模型我不是很了解, 还需要进一步学习. 
+```python
+model_lgb = lgb.LGBMRegressor(
+    objective='regression', 
+    num_leaves=5, 
+    learning_rate=0.05, 
+    n_estimators=720, 
+    max_bin=55, 
+    bagging_fraction=0.8, 
+    bagging_freq=5, 
+    feature_fraction=0.2319, 
+    feature_fraction_seed=9, 
+    bagging_seed=9, 
+    min_data_in_leaf=6, 
+    min_sum_hessian_in_leaf=11
+)
+```
 
 > &emsp;&emsp;检查上述模型经过调参之后的结果.
-
-## <div align = "center">Stacking models</div>
+```python
+basemodel_list = [lasso, ENet, KRR, GBoost, model_xgb, model_lgb]
+for i in range(len(basemodel_list)):
+    score = rmse_cv(basemodel_list[i])
+    print('\n'+str(i), ' score: {: .4f} ({:.4f})\n'.format(score.mean(), score.std()))
+```
+```
+0  score:  0.1115 (0.0074)
+1  score:  0.1116 (0.0074)
+2  score:  0.1153 (0.0075)
+3  score:  0.1177 (0.0080)
+4  score:  0.1151 (0.0069)
+5  score:  0.1144 (0.0071)
+```
+### <div align = "center">Stacking models</div>
+> &emsp;&emsp;我把`stacking models`称为学习模型. 
 + Simplest Stacking approach: Averaging base models
+```python
+class AveragingModels(BaseEstimator, RegressorMixin, TransformerMixin):
+    def __init__(self, models):
+        self.models = models
 
+    def fit(self, X, y):
+        self.models_ = [clone(x) for x in self.models]       
+        # Train cloned base models
+        for model in self.models_:
+            model.fit(X, y)          
+        return self
+
+    def predict(self, X):
+        predictions = np.column_stack([
+            model.predict(X) for model in self.models_
+        ])
+        return np.mean(predictions, axis=1)  
+```
+> &emsp;&emsp;`predict`函数最后一行`np.mean`函数取平均值, 输出的结果是所有简单模型的均值.
+```python
+# Averaged base models socre
+averaged_models = AveragingModels(models=(ENet, GBoost, KRR, lasso))
+score = rmse_cv(averaged_models)
+print('Averaged base models score: {:.4f} ({:.4f})\n'.format(score.mean(), score.std()))
+```
+```
+Averaged base models score: 0.1091 (0.0075)
+```
 + Less simple Stacking: Adding a Meta-model
-
+> &emsp;&emsp;这个部分才是真正的`stacking`. 原理简单来说就是先用几个简单模型训练, 然后在训练集上得到预测结果; 然后就是`stacking`的核心步骤, `stacking`将所有简单模型得到的预测结果作为特征代入指定的`meta-model`进行训练. 两部分得到的模型的组合就是最终的`stacking model`. (这部分的代码是参考别人的)
+```python
+class StackingAveragedModels(BaseEstimator, RegressorMixin, TransformerMixin):
+    def __init__(self, base_models, meta_model, n_fold=5):
+        self.base_models = base_models
+        self.meta_model = meta_model
+        self.n_folds = n_folds
+        
+    # We again fit the data on clones of the original models
+    def fit(self, X, y):
+        self.base_models_ = [list() for x in self.base_models]
+        self.meta_model_ = clone(self.meta_model)
+        kfold = KFold(n_splits=self.n_folds, shuffle=True, random_state=156)
+        
+        # Train cloned base models then create out-of-fold predictions
+        # that are needed to train the cloned meta-model
+        out_of_fold_predictions = np.zeros((X.shape[0], len(self.base_models)))
+        for i, model in enumerate(self.base_models):
+            for train_index, holdout_index in kfold.split(X, y):
+                instance = clone(model)
+                self.base_models_[i].append(instance)
+                instance.fit(X[train_index], y[train_index])
+                y_pred = instance.predict(X[holdout_index])
+                out_of_fold_predictions[holdout_index, i] = y_pred
+        
+        # Now train the cloned meta-model using the out-of-fold 
+        # predictions as new feature
+        self.meta_model_.fit(out_of_fold_predictions, y)
+        return self
+    
+    # Do the predictions of all base models on the test data and 
+    # use the averaged predictions as 
+    # meta-features for the final prediction which is done by the meta-model
+    def predict(self, X):
+        meta_features = np.column_stack([
+            np.column_stack([model.predict(X) for model in base_models]).mean(axis=1)
+            for base_models in self.base_models_
+        ])
+        return self.meta_model_.predict(meta_features)
+```
+```python
+# stacking Averaged models Score
+stacked_averaged_models = StackingAveragedModels(
+    base_models = (ENet, GBoost, KRR), 
+    meta_model = lasso
+)
+score = rmse_cv(stacked_averaged_models)
+print('Stacking Averaged models score: {:.4f} ({:.4f})'.format(score.mean(), score.std()))
+```
+```
+Stacking Averaged models score: 0.1085 (0.0074)
+```
+> &emsp;&emsp;第一层简单模型是`(ENet, GBoost, KRR)`, 第二层`meta-model`是`lasso`.最后的结果很好.
 + Ensembling StackedRegressor, XGBoost and LightGBM
-> &emsp;&emsp;
-> &emsp;&emsp;
+> &emsp;&emsp;最后尝试`XGBoost`和`LightGBM`的效果. 下面计算`RMSE`时使用的`y_train`时真实值, 而不是之前进行对数变换之后得到的值. 因此最后得到的`RMSE`的大小也有明显的变化.
+```python
+def rmse(y, y_pred):
+    return np.sqrt(mean_squared_error(y, y_pred))
+```
+```python
+# StackedRegressor
+stacked_averaged_models.fit(train.values, y_train)
+stacked_train_pred = stacked_averaged_models.predict(train.values)
+stacked_pred = np.expm1(stacked_averaged_models.predict(test.values))
+print(rmse(y_train, stacked_train_pred))
+```
+```
+0.0781571937916
+```
+```python
+# XGBoost
+model_xgb.fit(train, y_train)
+xgb_train_pred = model_xgb.predict(train)
+xgb_pred = np.expm1(model_xgb.predict(test))
+print(rmse(y_train, xgb_train_pred))
+```
+```
+0.0787989479925
+```
+```python
+# LightGBM
+model_lgb.fit(train, y_train)
+lgb_train_pred = model_lgb.predict(train)
+lgb_pred = np.expm1(model_lgb.predict(test.values))
+print(rmse(y_train, lgb_train_pred))
+```
+```
+0.0710388626653
+```
+> &emsp;&emsp;参考`Serigne`分享的代码, 对这几个模型计算加权平均.
+```python
+print('RMSE score on train data:', rmse(y_train, stacked_train_pred*0.7 + xgb_train_pred*0.15 + lgb_train_pred*0.15))
+```
+**
+**<div align = "center">最后得到的集成模型为:`ensemble = stacked_pred*0.7 + xgb_pred*0.15 + lgb_pred*0.15`</div>**
+
+至此, 这篇实战报告全部结束! 谢谢!
