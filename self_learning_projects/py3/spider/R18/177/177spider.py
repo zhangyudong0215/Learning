@@ -1,4 +1,5 @@
 # coding: utf-8
+from tqdm import tqdm
 from requests_html import HTMLSession
 import requests
 import regex as re
@@ -45,8 +46,10 @@ def save_image(img_url, order, save_path):
 
 
 def download(imgs, save_path):
-    for index, img_url in enumerate(imgs):
+    index = 1
+    for img_url in tqdm(imgs):
         save_image(img_url, index + 1, save_path)
+    index += 1
 
 
 def main(**kwargs):
@@ -87,6 +90,6 @@ if __name__ == '__main__':
     kwargs = vars(args)
     main(**kwargs)
 
-# python E:/ZYD/Github/Learning/self_learning_projects/py3/spider/R18/177/177spider.py -u url -s E:/ZYD/spider
+# python E:/ZYD/Github/Learning/self_learning_projects/py3/spider/R18/177/177spider.py -u url -s E:/ZYD/spider/177
 # python /home/ydzhang/GitHub/Learning/self_learning_projects/py3/spider/R18/177/177spider.py -u url -s /home/ydzhang/spider_download
 # http://www.177piczz.info/html/2018/05/2032694.html
