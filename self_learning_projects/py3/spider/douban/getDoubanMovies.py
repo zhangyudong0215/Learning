@@ -26,6 +26,7 @@ class MovieItem(object):
 
 class GetMovie(object):
     '''获取电影信息 '''
+
     def __init__(self):
         self.urlBase = 'https://movie.douban.com/subject/26264454/'
         self.log = mylog()  # 自定义日志模块
@@ -39,11 +40,15 @@ class GetMovie(object):
 
     def getResponseContent(self, url):
         '''获取页面返回的数据 '''
-        sleep(random()*6)
+        sleep(random() * 6)
         print('剩余%d个urls等待爬取' % self.resturlsnum)
         try:
-            header = {'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0',
-                      'accept': 'text/html, application/xhtml+xml, application/xml; q=0.9, image/webp, */*; q=0.8'}
+            header = {
+                'user-agent':
+                'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0',
+                'accept':
+                'text/html, application/xhtml+xml, application/xml; q=0.9, image/webp, */*; q=0.8'
+            }
             response = requests.get(url, headers=header).content
             self.resturlsnum = self.resturlsnum - 1
         except:
@@ -54,8 +59,8 @@ class GetMovie(object):
 
     def getNewUrls(self, soup):
         '''提取不重复推荐电影url'''
-#        htmlContent = self.getResponseContent(url)
-#        soup = BeautifulSoup(htmlContent, 'lxml')
+        #        htmlContent = self.getResponseContent(url)
+        #        soup = BeautifulSoup(htmlContent, 'lxml')
         anchorTag = soup.find('div', attrs={'class': 'recommendations-bd'})
         if anchorTag:
             count = 0
@@ -79,20 +84,30 @@ class GetMovie(object):
             infoTag = anchorTag.find('div', attrs={'id': 'info'})
             tags = infoTag.find_all('span')
             tags_starring = infoTag.find_all('a', attrs={'rel': 'v:starring'})
-            tags_genre = infoTag.find_all('span', attrs={'property': 'v:genre'})
+            tags_genre = infoTag.find_all(
+                'span', attrs={'property': 'v:genre'})
             # 电影名
             try:
-                item.title = soup.find('span', attrs={'property': 'v:itemreviewed'}).get_text()
+                item.title = soup.find(
+                    'span', attrs={
+                        'property': 'v:itemreviewed'
+                    }).get_text()
             except:
                 item.runtime = None
             # 上映时间
             try:
-                item.year = soup.find('span', attrs={'class': 'year'}).get_text()[1:-1]
+                item.year = soup.find(
+                    'span', attrs={
+                        'class': 'year'
+                    }).get_text()[1:-1]
             except:
                 item.runtime = None
             # 豆瓣评分
             try:
-                item.score = anchorTag.find('strong', attrs={'class': 'll rating_num'}).get_text()
+                item.score = anchorTag.find(
+                    'strong', attrs={
+                        'class': 'll rating_num'
+                    }).get_text()
             except:
                 item.runtime = None
             # 导演
@@ -103,7 +118,10 @@ class GetMovie(object):
             # 编剧
             try:
                 item.script = []
-                [item.script.append(i.get_text()) for i in tags[5].find_all('a')]
+                [
+                    item.script.append(i.get_text())
+                    for i in tags[5].find_all('a')
+                ]
             except:
                 item.runtime = None
             # 主演
@@ -120,7 +138,10 @@ class GetMovie(object):
                 item.runtime = None
             # 片长
             try:
-                item.runtime = anchorTag.find('span', attrs={'property': 'v:runtime'}).get_text()
+                item.runtime = anchorTag.find(
+                    'span', attrs={
+                        'property': 'v:runtime'
+                    }).get_text()
             except:
                 item.runtime = None
 
@@ -167,7 +188,8 @@ class GetMovie(object):
             genre.append(item.genre)
             runtime.append(item.runtime)
 
-        movie_table = DataFrame({
+        movie_table = DataFrame(
+            {
                 'title': title,
                 'year': year,
                 'score': score,
@@ -175,22 +197,22 @@ class GetMovie(object):
                 'script': script,
                 'actor': actor,
                 'genre': genre,
-                'runtime': runtime},
-            columns = ['title', 'year', 'score', 'director',
-                       'script', 'actor', 'genre', 'runtime'])
+                'runtime': runtime
+            },
+            columns=[
+                'title', 'year', 'score', 'director', 'script', 'actor',
+                'genre', 'runtime'
+            ])
 
         movie_table.to_csv('douban movie.csv')
 
 
 def show(item):
-    print('电影名: %s\n' % item.title,
-          '上映年份: %s\n' % item.year,
-          '豆瓣评分: %s\n' % item.score,
-          '导演: %s\n' % item.director,
-          '编剧: %s\n' % item.script,
-          '主演: %s\n' % item.actor,
-          '类型: %s\n' % item.genre,
-          '片长: %s\n' % item.runtime)
+    print('电影名: %s\n' % item.title, '上映年份: %s\n' % item.year,
+          '豆瓣评分: %s\n' % item.score, '导演: %s\n' % item.director,
+          '编剧: %s\n' % item.script, '主演: %s\n' % item.actor,
+          '类型: %s\n' % item.genre, '片长: %s\n' % item.runtime)
+
 
 if __name__ == '__main__':
     GDB = GetMovie()
