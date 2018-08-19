@@ -18,14 +18,27 @@ headers = {
 session = HTMLSession()
 logger = mylog()
 
+
+# 阿里云mysql
 conn = MySQLdb.connect(
-    host='127.0.0.1',
+    host='39.108.157.74',
     port=3306,
     user='root',
     password='00genius00',
     database='mzitu',
     charset='utf8',
 )
+
+# 本地mysql
+# conn = MySQLdb.connect(
+#     host='127.0.0.1',
+#     port=3306,
+#     user='root',
+#     password='00genius00',
+#     database='mzitu',
+#     charset='utf8',
+# )
+
 cursor = conn.cursor()
 
 

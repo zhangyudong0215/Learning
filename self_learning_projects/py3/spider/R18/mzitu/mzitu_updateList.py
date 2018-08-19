@@ -15,8 +15,16 @@ htmlsession = HTMLSession()
 pattern = re.compile('http:\/\/www\.mzitu\.com\/\d{1,6}')
 start_url = 'http://www.mzitu.com/all/'
 
+# # 阿里云mysql
+# engine = create_engine(
+#     'mysql://root:00genius00@39.108.157.74:3306/mzitu?charset=utf8'
+# )
+
+# 本地数据库
 engine = create_engine(
-    'mysql://root:00genius00@localhost:3306/mzitu?charset=utf8')  # 这里一定要主动加上编码
+    'mysql://root:00genius00@localhost:3306/mzitu?charset=utf8'
+)  # 这里一定要主动加上编码
+
 Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()
