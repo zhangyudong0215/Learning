@@ -13,4 +13,5 @@ Self-Learning projects
 这种反爬措施的基本思路似乎是检查上一个访问的url, 应对方法是在`headers`中添加`referer`(key), 设置一个恰当的`url`(value)即可.
 另外就是requests-html包可以完全替代requests包, 剩下的问题就是scrapy的Request返回的结果能否用requests-html包进行解析. 虽然用xpath看起来也不错, 可还是比不上absolute_links带来的便利. 
 2018-5-8 22:25:00 基本完成爬虫主体, 准备存入Mysql或MongoDB. 
-## [20180812]最近Julia 1.0.0发布了, 来玩一下
+## [20180819]将mzitu爬虫数据库从本地转移到阿里云服务器
+## [20180819]最近Julia 1.0.0发布了, 了解一下
