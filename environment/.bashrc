@@ -97,6 +97,7 @@ alias workbench='mysql-workbench'
 alias aliyun='ssh root@39.108.157.74'
 alias hadoopstart='/usr/local/hadoop/hadoop-3.1.0/sbin/start-all.sh'
 alias hadoopstop='/usr/local/hadoop/hadoop-3.1.0/sbin/stop-all.sh'
+alias julia='/home/ydzhang/julia-1.0.0/bin/julia'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
