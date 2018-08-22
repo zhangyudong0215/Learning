@@ -100,4 +100,4 @@ for i in range(len(data)):
     title, pic_id, page_count, clicks = data.loc[
         i, ['title', 'pic_id', 'page_count', 'clicks']]
     main_spider(title, pic_id, page_count, clicks,
-                '/home/ydzhang/spider_download/')
+                '/home/root/spider_download/')
