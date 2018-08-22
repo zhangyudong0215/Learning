@@ -19,7 +19,7 @@ session = HTMLSession()
 logger = mylog()
 
 
-# 阿里云mysql
+# # 阿里云mysql
 # conn = MySQLdb.connect(
 #     host='39.108.157.74',
 #     port=3306,
@@ -29,7 +29,7 @@ logger = mylog()
 #     charset='utf8',
 # )
 
-本地mysql
+# 本地mysql
 conn = MySQLdb.connect(
     host='127.0.0.1',
     port=3306,

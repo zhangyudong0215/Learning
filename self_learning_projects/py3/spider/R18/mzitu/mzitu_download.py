@@ -29,7 +29,7 @@ conn = MySQLdb.connect(
     charset='utf8',
 )
 
-# 本地mysql
+# # 本地mysql
 # conn = MySQLdb.connect(
 #     host='127.0.0.1',
 #     port=3306,
