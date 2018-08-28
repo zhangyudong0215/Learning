@@ -17,7 +17,7 @@ headers = {
     'referer':
     'http://bbs.nju.edu.cn/g/JobExpress'
 }
-pattern_index = re.compile('bbscon\?board=JobExpress&file=M\.(\d+)\.A&num=\d+')
+pattern_index = re.compile('bbscon\?board=JobExpress&file=M\.(\d+)\.A&num=(\d+)')
 keep_going = True
 count_articles = 99999999
 count_crawled = 0
@@ -31,16 +31,17 @@ def update_url_articles(res):
     global pattern_index
     for link in res.html.links:
         if link.startswith('bbscon?board=JobExpress&file=M.'):
-            index = int(pattern_index.match(link).group(1))
+            index = int(pattern_index.match(link).group(2))
+            file = int(pattern_index.match(link).group(1))
             if index > count_crawled:
                 count_articles = index if count_articles > index else count_articles
-                url_articles.append((str(index), 'http://bbs.nju.edu.cn/'+link))
+                url_articles.append((str(file), str(index), 'http://bbs.nju.edu.cn/'+link))
             else:
                 keep_going = False
 
-def insert(cursor, db, index, url):
+def insert(cursor, db, file, index, url):
     global SUCCESSES, ERRORS
-    sql_query = "INSERT IGNORE INTO links VALUES ('%s', '%s')" %(str(index), url)
+    sql_query = "REPLACE INTO links VALUES ('%s', '%s', '%s')" %(str(file), str(index), url)
     try:
         cursor.execute(sql_query)
         db.commit()
@@ -64,7 +65,7 @@ def main():
     db = pymysql.connect("39.108.157.74","root","00genius00","JobExpress" )
     cursor = db.cursor()
     cursor.execute("SELECT MAX(id) FROM links")
-    count_crawled = cursor.fetchone()[0]
+    count_crawled = cursor.fetchone()[0] - 100 # 存在部分删帖情况, 需要对近期url进行更新
     res = htmlsession.get(start_url, headers=headers)
     update_url_articles(res)
 
@@ -76,7 +77,7 @@ def main():
         time.sleep(0.5)
 
     for item in tqdm(url_articles):
-        insert(cursor, db, item[0], item[1])
+        insert(cursor, db, item[0], item[1], item[2])
 
     logger.info('成功: %d, 失败: %d' %(SUCCESSES, ERRORS))
 
