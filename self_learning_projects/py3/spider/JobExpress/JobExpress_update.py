@@ -41,7 +41,7 @@ def update_url_articles(res):
 
 def insert(cursor, db, file, index, url):
     global SUCCESSES, ERRORS
-    sql_query = "REPLACE INTO links VALUES ('%s', '%s', '%s')" %(str(file), str(index), url)
+    sql_query = "REPLACE INTO links VALUES ('%s', '%s', '%s', 0)" %(str(file), str(index), url)
     try:
         cursor.execute(sql_query)
         db.commit()
