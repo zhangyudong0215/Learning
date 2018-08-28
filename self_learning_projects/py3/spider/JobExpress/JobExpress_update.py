@@ -76,6 +76,8 @@ def main():
         update_url_articles(res)
         time.sleep(0.5)
 
+    url_articles.sort(key=lambda x: int(x[1]))
+
     for item in tqdm(url_articles):
         insert(cursor, db, item[0], item[1], item[2])
 
