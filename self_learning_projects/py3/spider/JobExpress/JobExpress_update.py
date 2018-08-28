@@ -17,7 +17,7 @@ headers = {
     'referer':
     'http://bbs.nju.edu.cn/g/JobExpress'
 }
-pattern_index = re.compile('bbscon\?board=JobExpress&file=M\.\d+\.A&num=(\d+)')
+pattern_index = re.compile('bbscon\?board=JobExpress&file=M\.(\d+)\.A&num=\d+')
 keep_going = True
 count_articles = 99999999
 count_crawled = 0
