@@ -15,7 +15,7 @@ htmlsession = HTMLSession()
 pattern = re.compile('http:\/\/www\.mzitu\.com\/\d{1,6}')
 start_url = 'http://www.mzitu.com/all/'
 
-# # 阿里云mysql
+# # aliyun mysql
 # engine = create_engine(
 #     'mysql://root:00genius00@39.108.157.74:3306/mzitu?charset=utf8'
 # )
