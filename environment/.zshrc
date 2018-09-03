@@ -2,13 +2,13 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-  export ZSH=/home/ydzhang/.oh-my-zsh
+  export ZSH=/root/.oh-my-zsh
 
 # Set name of the theme to load. Optionally, if you set this to "random"
 # it'll load a random theme each time that oh-my-zsh is loaded.
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-# ZSH_THEME="robbyrussell"
-ZSH_THEME="agnoster"
+ZSH_THEME="robbyrussell"
+# ZSH_THEME="agnoster"
 
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
@@ -66,7 +66,6 @@ plugins=(
 source $ZSH/oh-my-zsh.sh
 
 # User configuration
-source ~/.bash_profile
 
 # export MANPATH="/usr/local/man:$MANPATH"
 
@@ -94,17 +93,17 @@ source ~/.bash_profile
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
-
 alias mysql='mycli -u root -p 00genius00'
 alias pipinstall='pip install -i https://pypi.tuna.tsinghua.edu.cn/simple'
 alias workbench='mysql-workbench'
 alias aliyun='ssh root@39.108.157.74'
-alias hadoopstart='/usr/local/hadoop/hadoop-3.1.0/sbin/start-all.sh'
-alias hadoopstop='/usr/local/hadoop/hadoop-3.1.0/sbin/stop-all.sh'
+alias julia='/root/julia-1.0.0/bin/julia'
+alias mzitu='cd /root/GitHub/Learning/self_learning_projects/py3/spider/R18/mzitu'
+
 
 export LC_ALL=en_US.UTF-8  
 export LANG=en_US.UTF-8
 export DEFAULT_USER="username"
-export PATH="/home/ydzhang/anaconda3/bin:$PATH"
+export PATH="/root/miniconda3/bin:$PATH"
 
 eval $(thefuck --alias)
