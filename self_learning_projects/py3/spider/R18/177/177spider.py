@@ -2,7 +2,8 @@
 from tqdm import tqdm
 from requests_html import HTMLSession
 import requests
-import regex as re
+# import regex as re # regex需要c++支持, WSL上使用存在问题
+import re
 import functools
 import argparse
 import os
@@ -48,8 +49,8 @@ def save_image(img_url, order, save_path):
 def download(imgs, save_path):
     index = 1
     for img_url in tqdm(imgs):
-        save_image(img_url, index + 1, save_path)
-    index += 1
+        save_image(img_url, index, save_path)
+        index += 1
 
 
 def main(**kwargs):
