@@ -63,13 +63,22 @@ def download(pic_id, page_count, save_path):
     res = session.get(base_url)
     first_img_url = res.html.xpath(
         '/html/body/div[2]/div[1]/div[3]/p/a/img/@src')[0]  # 秀一波xpath
-    for index in tqdm(range(1, page_count + 1)):
+    save_image(first_img_url, 1, save_path)
+
+    index = 2
+    while index <= page_count:
         if index < 10:
             img_url = first_img_url.replace('1.jpg', '%d.jpg' % index)
         else:
             img_url = first_img_url.replace('01.jpg', '%d.jpg' % index)
+        if img_url == first_img_url:
+            target_url = base_url + str(index)
+            res = session.get(target_url)
+            img_url = res.html.xpath(
+                '/html/body/div[2]/div[1]/div[3]/p/a/img/@src')[0]
         save_image(img_url, index, save_path)
-        # logger.info('完成: %s/%s' %(index, page_count))
+        index += 1
+
     cursor.execute('UPDATE photo_album SET crawled = 1 WHERE pic_id = %s' %
                    pic_id)  # 完成之后更新数据库
     conn.commit()
