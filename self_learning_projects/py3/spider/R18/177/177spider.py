@@ -25,11 +25,11 @@ def get_info(url, responses, pattern):
 
 def get_page_imgs(response):
     imgs = []
-    content = response.html.find('div.entry-content', first=True)
+    content = response.html.find('div.single-content', first=True)
     pics = content.find('p')
     for pic in pics:
         try:
-            imgs.append(pic.find('img', first=True).attrs['src'])
+            imgs.append(pic.find('img', first=True).attrs['data-lazy-src'])
         except:
             pass
     return imgs
